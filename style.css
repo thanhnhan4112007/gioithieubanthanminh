@@ -1,12 +1,12 @@
 header{
-    background-color: black;
+    background-color: white;
     background-attachment:fixed;
     background-repeat: no-repeat;
-    color: white;
+    color: black;
 }
  #ten{
     font-family:  Brush Script MT;
-    color: darkblue;
+    color: darkpink;
     font-style: italic;
     margin-left: 100px;
  }
