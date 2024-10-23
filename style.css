@@ -53,3 +53,10 @@
   width: 30px;
   height: 30px;
 }
+ body{
+    background-image: url(OIP.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+ }
