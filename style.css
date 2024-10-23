@@ -1,11 +1,10 @@
-/* Định dạng chung */
 .profile-card {
   width: 300px;
   margin: 50px auto;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 2px solid #f26a8d; /* Màu hồng tươi */
   border-radius: 10px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 4px 8px rgba(242, 106, 141, 0.3); /* Bóng đổ màu hồng nhạt */
   background-color: #fff;
 }
 
@@ -19,10 +18,12 @@
   height: 150px;
   border-radius: 50%;
   margin-bottom: 20px;
+  border: 4px solid #f26a8d; /* Viền ảnh màu hồng tươi */
 }
 
 .profile-card h1 {
   font-size: 24px;
+  color: #333; /* Màu chữ đậm */
   margin-bottom: 10px;
 }
 
@@ -36,6 +37,7 @@
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 20px;
+  color: #555; /* Màu chữ xám đậm */
 }
 
 /* Phần social */
@@ -53,10 +55,9 @@
   width: 30px;
   height: 30px;
 }
- body{
-    background-image: url(OIP.jpg);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
- }
+
+/* Thêm hiệu ứng hover cho ảnh đại diện */
+.profile-card img:hover {
+  transform: scale(1.1); /* Phóng to nhẹ khi di chuột */
+  box-shadow: 0px 4px 8px rgba(242, 106, 141, 0.6); /* Tăng bóng đổ */
+}
