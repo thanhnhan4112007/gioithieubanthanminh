@@ -62,7 +62,7 @@
   box-shadow: 0px 4px 8px rgba(242, 106, 141, 0.6); /* Tăng bóng đổ */
 }
 body {
-  background-image: url('Cảnh đẹp của thiên nhiên hùng vĩ #shorts #nature.mp4');
+  background-video: url('Cảnh đẹp của thiên nhiên hùng vĩ #shorts #nature.mp4');
   background-size: cover;
   background-position: center;
 }
