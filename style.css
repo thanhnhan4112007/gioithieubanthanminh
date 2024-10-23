@@ -61,3 +61,10 @@
   transform: scale(1.1); /* Phóng to nhẹ khi di chuột */
   box-shadow: 0px 4px 8px rgba(242, 106, 141, 0.6); /* Tăng bóng đổ */
 }
+body{
+    background-image: url(OIP.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: cover;
+}
