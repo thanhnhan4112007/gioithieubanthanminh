@@ -1,0 +1,51 @@
+# BTL Giải tích 2 - Silo. [CODE DO AI TẠO: Claude (Anthropic); đã chạy và đối chiếu với nghiệm giải tích]
+import numpy as np
+from scipy import integrate, optimize
+V0, rho0, kap, bet, g, mu, k = 1000.0, 780.0, 0.10, 0.03, 9.81, 0.35, 0.50
+s5 = np.sqrt(5)
+
+# ---- Bài toán 1: nghiệm giải tích từ hệ Lagrange ----
+R = (3*V0/(np.pi*(6+s5)))**(1/3); h1 = 2*R/s5; h2 = R*(2+1/s5); hc = h1+h2
+S = lambda R_, h_: 2*np.pi*R_*(V0/(np.pi*R_**2)-h_/3) + np.pi*R_*np.hypot(R_, h_) + 2*np.pi*R_**2
+print(f"[BT1] R={R:.4f} h1={h1:.4f} h2={h2:.4f} S*={np.pi*R**2*(6+s5):.3f}  3V0/R={3*V0/R:.3f}")
+nm = optimize.minimize(lambda x: S(*x), [4, 3], method="Nelder-Mead", options=dict(xatol=1e-10, fatol=1e-12))
+print(f"[BT1] Nelder-Mead: R={nm.x[0]:.4f} h1={nm.x[1]:.4f} S={nm.fun:.3f}")
+for deg in (41.81, 50, 60):                       # độ nhạy theo góc thành phễu
+    t = np.tan(np.radians(deg)); c = 2+np.sqrt(1+t*t)-2*t/3; Rt = (V0/(np.pi*c))**(1/3)
+    print(f"[BT1] goc={deg}: S/S*={(2*V0/Rt+np.pi*Rt**2*c)/S(R,h1):.4f}")
+
+# ---- Bài toán 2: tích phân bội ba (tọa độ trụ) ----
+tpl = lambda f, zlo, zhi: integrate.tplquad(lambda z, r, th: f(r, z)*r, 0, 2*np.pi, 0, R, zlo, zhi)[0]
+cone = (lambda th, r: h1*r/R, lambda th, r: h1)
+cyl  = (lambda th, r: h1,     lambda th, r: hc)
+roof = (lambda th, r: hc,     lambda th, r: hc+np.sqrt(R*R-r*r))
+V1, V2, V3 = (tpl(lambda r, z: 1, *d) for d in (cone, cyl, roof))
+print(f"[BT2] V1={V1:.4f} V2={V2:.4f} V3={V3:.4f} V1+V2={V1+V2:.4f}")
+rho = lambda r, z: rho0*(1+kap*(hc-z)/hc+bet*(1-r/R))
+M = tpl(rho, *cone)+tpl(rho, *cyl)
+Z  = np.pi*R**2*h1**2/4 + np.pi*R**2*(hc**2-h1**2)/2        # tich phan boi ba cua z (cong thuc dong)
+Ir = np.pi*h1*R**3/6 + 2*np.pi*h2*R**3/3                    # tich phan boi ba cua r (cong thuc dong)
+Mc = rho0*((1+kap+bet)*V0 - kap*Z/hc - bet*Ir/R)
+print(f"[BT2] M(numeric)={M:.1f} kg  M(closed)={Mc:.1f} kg  rho_tb={M/V0:.2f}")
+
+# ---- Bài toán 3: tích phân mặt ----
+S1 = integrate.dblquad(lambda u, th: u*np.sqrt(1+(h1/R)**2), 0, 2*np.pi, 0, R)[0]
+S2 = integrate.dblquad(lambda z, th: R, 0, 2*np.pi, h1, hc)[0]
+S3 = integrate.dblquad(lambda ph, th: R*R*np.sin(ph), 0, 2*np.pi, 0, np.pi/2)[0]
+print(f"[BT3] S1={S1:.3f} S2={S2:.3f} S3={S3:.3f} tong={S1+S2+S3:.3f}")
+print(f"[BT3] Gauss: flux={R*S2 + hc*np.pi*R**2:.3f}  3V={3*V0:.3f}")   # nón: F.n = 0
+gam = M*g/V0; z0 = R/(2*mu*k)
+pv = lambda d: gam*z0*(1-np.exp(-d/z0)); ph = lambda d: k*pv(d)
+Ncyl = 2*np.pi*R*integrate.quad(ph, 0, h2)[0]
+psi = np.arctan(h1/R)
+pn = lambda d: pv(d)*np.cos(psi)**2 + ph(d)*np.sin(psi)**2
+Nhop = integrate.dblquad(lambda u, th: pn(h2+h1*(1-u/R))*u*np.sqrt(1+(h1/R)**2), 0, 2*np.pi, 0, R)[0]
+print(f"[BT3] gamma={gam:.1f} z0={z0:.3f} ph(h2)={ph(h2)/1e3:.2f} kPa  N_cyl={Ncyl/1e3:.2f} kN  N_hop={Nhop/1e3:.2f} kN")
+lhs, rhs = gam*np.pi*R**2*h2, pv(h2)*np.pi*R**2 + mu*Ncyl
+print(f"[BT3] Janssen can bang: {lhs/1e3:.2f} kN vs {rhs/1e3:.2f} kN")
+
+# ---- Phân tích riêng (Chương 4): so sánh thiết kế tham chiếu và khối lượng thép ----
+for Rd, hd in [(4.5, 3.0), (5.5, 5.5)]:
+    print(f"[PT] R={Rd} h1={hd} h2={V0/(np.pi*Rd**2)-hd/3:.2f}: S={S(Rd, hd):.2f} (+{100*(S(Rd, hd)/S(R, h1)-1):.2f}%)")
+print(f"[PT] thep dày 4 mm: {7850*S(R, h1)*0.004/1e3:.2f} t; chênh 1.2% = {7850*S(R, h1)*0.004*0.012/1e3:.3f} t")
+print(f"[PT] rho_tb/rho0={M/V0/rho0:.4f}; ma sát thành trụ={mu*Ncyl/1e3:.1f} kN = {100*mu*Ncyl/lhs:.1f}% trọng lượng cột hạt; thủy tĩnh/Janssen={k*gam*h2/ph(h2):.3f}")
